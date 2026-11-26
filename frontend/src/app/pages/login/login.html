@@ -1,0 +1,40 @@
+<main class="login-page">
+  <section class="login-panel" aria-labelledby="login-title">
+    <img class="logo" src="logoFinanSysHorizontal.png" alt="FinanSys — Sistema Contábil">
+    <h1 id="login-title">Login</h1>
+    <p class="descricao">Entre com sua conta para acessar o sistema.</p>
+    <form #loginForm="ngForm" (ngSubmit)="entrar(loginForm)" [attr.aria-busy]="session.busy()">
+      <div class="campo">
+        <label for="identificador">Identificador</label>
+        <input id="identificador" name="identificador" type="text" placeholder="Seu identificador" autocomplete="username"
+          [(ngModel)]="identificador" #identifierInput="ngModel" maxlength="200"
+          [disabled]="session.busy()" [attr.aria-invalid]="identifierInput.touched && identifierInput.invalid"
+          [attr.aria-describedby]="identifierInput.touched && identifierInput.invalid ? 'identificador-erro' : null" required>
+        @if (identifierInput.touched && identifierInput.invalid) {
+          <small class="erro" id="identificador-erro">Informe seu identificador.</small>
+        }
+      </div>
+      <div class="campo">
+        <label for="senha">Senha</label>
+        <div class="senha">
+          <input id="senha" name="senha" [type]="mostrarSenha ? 'text' : 'password'" maxlength="1024"
+            autocomplete="current-password" [(ngModel)]="senha" #passwordInput="ngModel" [disabled]="session.busy()"
+            [attr.aria-invalid]="passwordInput.touched && passwordInput.invalid"
+            [attr.aria-describedby]="passwordInput.touched && passwordInput.invalid ? 'senha-erro' : null" required>
+          <button type="button" class="mostrar-senha" (click)="mostrarSenha = !mostrarSenha"
+            [attr.aria-pressed]="mostrarSenha" [disabled]="session.busy()">{{ mostrarSenha ? 'Ocultar' : 'Mostrar' }}</button>
+        </div>
+        @if (passwordInput.touched && passwordInput.invalid && !session.busy()) {
+          <small class="erro" id="senha-erro">Informe sua senha.</small>
+        }
+      </div>
+      <button type="button" class="recuperar" disabled title="Recuperação de senha indisponível">Esqueceu sua senha? · Indisponível</button>
+      <button type="submit" class="acao entrar" [disabled]="session.busy()">{{ session.busy() ? 'Aguarde…' : 'Entrar' }}</button>
+      <button type="button" class="acao cadastro" disabled>Criar uma conta · Indisponível</button>
+      @if (session.message()) { <p class="mensagem erro" role="status">{{ session.message() }}</p> }
+      @if (session.logoutPending()) {
+        <button type="button" class="acao cadastro" [disabled]="session.busy()" (click)="session.logout()">Tentar encerrar sessão novamente</button>
+      }
+    </form>
+  </section>
+</main>

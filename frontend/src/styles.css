@@ -1,0 +1,74 @@
+html, body { margin: 0; }
+button, input { font: inherit; }
+.fs-layout {
+    --fs-fundo: #f6f4ff;
+    --fs-menu: #25163f;
+    --fs-roxo: #6041b0;
+    --fs-texto: #211738;
+    --fs-suave: #655979;
+    --fs-borda: #e7e0f0;
+
+    display: grid;
+    grid-template-columns: 202px minmax(0, 1fr);
+    min-height: 100dvh;
+    background: var(--fs-fundo);
+    color: var(--fs-texto);
+    font-family: Poppins, system-ui, sans-serif;
+}
+
+.fs-conteudo {
+    padding: 28px clamp(20px, 3vw, 36px);
+}
+
+.fs-page-header {
+    margin-bottom: 22px;
+}
+
+.fs-page-header small {
+    color: var(--fs-roxo);
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 1.4px;
+}
+
+.fs-page-header h1 {
+    margin: 4px 0;
+    font-size: 30px;
+}
+
+.fs-page-header p {
+    margin: 6px 0 16px;
+    color: var(--fs-suave);
+    font-size: 13px;
+}
+
+.fs-botao {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 10px 14px;
+    border: 1px solid var(--fs-borda);
+    border-radius: 8px;
+    background: #fff;
+    color: var(--fs-texto);
+    text-decoration: none;
+    font: inherit;
+    font-size: 12px;
+    font-weight: 600;
+}
+
+.fs-primario {
+    background: var(--fs-roxo);
+    color: #fff;
+}
+
+.fs-layout button:disabled {
+    opacity: 0.65;
+    cursor: not-allowed;
+}
+
+
+@media (max-width: 720px) {
+  .fs-layout { grid-template-columns: 1fr; }
+}
+

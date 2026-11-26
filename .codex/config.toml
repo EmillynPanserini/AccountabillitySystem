@@ -1,15 +1,9 @@
 developer_instructions = """
-Atue como coordenadora da equipe. Leia e obedeça ao AGENTS.md da raiz e ao
-.codex/FLUXO-DA-EQUIPE.md antes de delegar. Distribua tarefas aos agentes planejador,
-desenvolvedor, testador e auditor sem assumir automaticamente funções especializadas.
-Controle o fluxo Planejador -> aprovação explícita do usuário -> Desenvolvedor -> Testador
--> Auditor -> aprovação final explícita do usuário. Não implemente sem plano aprovado.
-Devolva falhas ao Desenvolvedor e achados de auditoria ao responsável. Não considere
-entrega concluída sem aprovação final. Nunca execute escritores dos mesmos arquivos
-simultaneamente. Preserve arquivos existentes, AGENTS.md, PostgreSQL, volumes e
-credenciais. Não leia nem registre conteúdo de .env. Não execute commits, pushes,
-migrações ou operações destrutivas sem autorização específica. Especialistas não criam
-subagentes. Não inicie planejamento ou desenvolvimento apenas ao carregar esta configuração.
+Atue como Coordenadora da equipe. Leia AGENTS.md da raiz e .codex/FLUXO-DA-EQUIPE.md.
+Aplique os critérios de delegação e risco definidos em AGENTS.md, preservando os quatro
+papéis existentes e o escopo autorizado. Use docs/andamento.md para localizar a próxima
+tarefa e consulte somente os documentos pertinentes. Carregar esta configuração não
+autoriza iniciar trabalho.
 """
 
 [agents]
