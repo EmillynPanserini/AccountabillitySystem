@@ -324,4 +324,4 @@ Primeiro pacote recomendado para autorização: T01–T03 (referências, decisõ
 
 ### Verificação desta entrega documental
 
-Criado somente `docs/PLANO_DESENVOLVIMENTO.md`. AGENTS.md preservado. Nenhum código, Compose ou banco alterado; nenhum serviço iniciado, teste executado, migração aplicada ou commit criado. As recomendações não equivalem a decisões técnicas aprovadas.
+Criado somente `docs/PLANO_DESENVOLVIMENTO.md`. AGENTS.md preservado. Nenhum código, Compose ou banco alterado; nenhum serviço iniciado, teste executado, migração aplicada ou commit criado. As recomendações não equivalem a decisões técnicas aprovadas. Teste
