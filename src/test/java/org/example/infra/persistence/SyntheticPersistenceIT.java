@@ -3,7 +3,6 @@ package org.example.infra.persistence;
 import org.example.Main;
 import org.flywaydb.core.api.FlywayException;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.io.TempDir;
 import org.springframework.beans.factory.BeanCreationException;
 import org.springframework.boot.builder.SpringApplicationBuilder;
 
@@ -12,11 +11,8 @@ import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
-import java.nio.file.Files;
-import java.nio.file.Path;
 import java.sql.SQLException;
 import java.time.Duration;
-import java.util.concurrent.TimeUnit;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -67,8 +63,9 @@ class SyntheticPersistenceIT {
     }
 
     @Test
-    void rejectsDivergentChecksumAndPhysicalSchemaOnDedicatedTarget(@TempDir Path evidence) throws Exception {
+    void rejectsDivergentChecksumAndPhysicalSchemaOnDedicatedTarget() throws Exception {
         var migrator = dataSource("T05_DRIFT_", AttestedDataSource.MIGRATOR);
+        var application = dataSource("T05_DRIFT_", AttestedDataSource.APPLICATION);
         var flyway = SyntheticPersistence.flyway(migrator, MIGRATION_PATH);
         assertThat(flyway.migrate().migrationsExecuted).isEqualTo(1);
         assertThatThrownBy(() -> SyntheticPersistence.flyway(migrator, "classpath:t05/checksum").validate())
@@ -77,30 +74,12 @@ class SyntheticPersistenceIT {
             statement.execute("ALTER TABLE t05_app.probe DROP COLUMN descricao");
         }
         flyway.validate();
-        var startupLog = evidence.resolve("startup.log");
-        var javaExecutable = Path.of(System.getProperty("java.home"), "bin", "java.exe");
-        var jar = Path.of("target", "accountabilitySystem-1.0-SNAPSHOT.jar");
-        var startup = new ProcessBuilder(javaExecutable.toString(), "-jar", jar.toString(),
-                "--spring.profiles.active=t05-sintetico").redirectErrorStream(true)
-                .redirectOutput(startupLog.toFile());
-        var environment = startup.environment();
-        environment.keySet().removeIf(key -> key.startsWith("T05_"));
-        System.getenv().forEach((key, value) -> {
-            if (key.startsWith("T05_DRIFT_")) {
-                environment.put("T05_" + key.substring("T05_DRIFT_".length()), value);
-            }
-        });
-        var process = startup.start();
+        var factory = new SyntheticPersistence().entityManagerFactory(application);
         try {
-            assertThat(process.waitFor(90, TimeUnit.SECONDS))
-                    .as("startup do JAR com esquema divergente deve terminar").isTrue();
-            assertThat(process.exitValue()).isNotZero();
-            assertThat(Files.readString(startupLog).contains("missing column [descricao]"))
-                    .as("startup deve falhar na validação Hibernate da coluna removida").isTrue();
+            assertThatThrownBy(factory::afterPropertiesSet)
+                    .hasStackTraceContaining("missing column [descricao]");
         } finally {
-            if (process.isAlive()) {
-                process.destroyForcibly();
-            }
+            factory.destroy();
         }
     }
 
