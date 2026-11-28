@@ -46,6 +46,26 @@ Os relatórios ficam em `target/surefire-reports` e `target/failsafe-reports`. O
 
 Em engines que ocultam o mapeamento ativo durante a pausa, a identidade e a rede do contêiner continuam atestadas, mas o JDBC fica bloqueado. A retomada exige essa mesma identidade e revalida o binding ativo antes de liberar conexões novamente.
 
+## Bootstrap sintético T06
+
+O primeiro incremento cria somente o administrador inicial, com Argon2id (19.456 KiB, duas iterações, paralelismo 1, salt de 16 bytes e hash de 32 bytes), capacidades globais e auditoria. O encerramento é transacional e definitivo. Nenhum bootstrap é registrado no startup Spring; login, sessão e Angular continuam fora deste incremento.
+
+Com autorização específica e Docker Desktop Linux local, execute na raiz `powershell.exe -NoProfile -NonInteractive -File scripts/t06/pg17.ps1 -Action Verify`. O runner cria uma rede e um PostgreSQL 17 exclusivos, com tmpfs, porta dinâmica em loopback e sem volumes persistentes; aplica somente migrações T06, executa testes e remove os próprios recursos após conferir IDs e labels. O perfil `t06-postgres-it` falha antes de JDBC sem os metadados atestados do runner. As fixtures são fictícias; testes de rollback podem resetar somente esse banco descartável, usando o papel proprietário separado do papel de bootstrap.
+
+`org.example.identidade.BootstrapCommand --bootstrap-sintetico` é a entrada local explícita, com console obrigatório, senha sem eco e confirmação da verificação externa do operador/destinatário. Requer metadados e credenciais do destino sintético atestado; não aceita URL JDBC livre nem prepara banco. Identificação, referência da autorização/verificação e data ficam na auditoria, sem senha. O executável padrão continua usando `org.example.Main`. Operação real continua sem autorização.
+
+## Autenticação e sessão T06
+
+A API de identidade exige HTTPS. `GET /api/v1/sessao` retorna estado, identificador/capacidades quando autenticado e `csrfToken`/`csrfHeader`, com `Cache-Control: no-store`. Envie o token no cabeçalho `X-CSRF-TOKEN` em toda mutação, inclusive `POST /api/v1/login` e `POST /api/v1/logout`. Login recebe formulário `application/x-www-form-urlencoded` com `identificador` e `senha`, somente no corpo; sucesso retorna 204 e falha de credenciais retorna 401 genérico. Logout retorna 204. Após login/logout, consulte novamente a sessão para obter novo token; após expiração/401 ou CSRF inválido/403, obtenha o estado e solicite nova autenticação, sem repetir automaticamente a operação anterior.
+
+`JSESSIONID` permanece apenas no cookie `HttpOnly; Secure; SameSite=Lax`; o servidor troca o ID no login, invalida no logout e expira após 30 minutos de inatividade. Não há sessão em URL, HTTP Basic ou usuário/senha gerados automaticamente. Sem datasource T06 configurado, autenticação falha fechada.
+
+O perfil opt-in `t06-sintetico` conecta a autenticação JDBC exclusivamente ao destino atestado do runner T06, usando `t06_identity_reader`, com leitura de identidade/capacidades e sem escrita, DDL, acesso à auditoria ou poderes de bootstrap. A V2 concede somente essa leitura; V1 permanece intacta. Esse perfil não executa migração/bootstrap no startup nem inicializa repositórios JPA. O runner verifica bootstrap persistido → login HTTPS → capacidades/sessão e recriação do contexto sobre o mesmo banco descartável. O perfil padrão continua sem datasource; T05 não é destino de autenticação.
+
+O limitador local admite até cinco falhas por identificador/IP e 30 por IP em janela de 15 minutos, contando tentativas em andamento para controlar concorrência. Retorna 429 com `Retry-After: 900`. A memória tem limite de 10 mil entradas; saturação recusa novas origens até expiração, sem descartar limites ativos. Sessão e limitador são locais ao processo, não compartilhados entre instâncias. O IP é o remoto do socket; esta entrega usa HTTPS direto, sem configuração de proxy confiável.
+
+`mvnw.cmd -B -ntp test` executa fixtures fictícias, HTTPS embarcado em loopback/porta efêmera e certificado temporário confiado somente pelo cliente de teste. Os testes conferem timeout de 1.800 segundos e expiração real do servlet com intervalo reduzido para um segundo apenas na fixture. Não executam Docker, migrações ou PostgreSQL.
+
 ## Angular
 
 Em PowerShell, a partir da raiz:

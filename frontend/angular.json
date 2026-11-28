@@ -13,7 +13,6 @@
             "outputPath": "dist/accountability",
             "index": "src/index.html",
             "browser": "src/main.ts",
-            "tsConfig": "tsconfig.app.json"
           },
           "configurations": {
             "production": {

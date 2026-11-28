@@ -1,0 +1,9 @@
+<header class="tb-barra">
+  <span class="tb-titulo">Escrituração contábil</span>
+  <div class="tb-acoes">
+    <div class="tb-empresa"><span class="tb-label">Empresa</span><button class="tb-botao" disabled>Indisponível</button></div>
+    <button class="tb-botao" disabled>+ Adicionar empresa</button>
+    <button class="tb-botao tb-primario" disabled>+ Novo lançamento</button>
+    <button class="tb-botao" (click)="session.logout()" [disabled]="session.busy()">Sair</button>
+  </div>
+</header>
